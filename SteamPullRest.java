@@ -19,8 +19,8 @@ public class SteamPullRest {
 	public static void main(String[] args) throws IOException {
 		String key = ""; //Enter api key
 		String steamID = "76561198069391194";
-		String urlString = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + key 
-				+ "&steamid=" + steamID + "&format=json";
+		String urlString = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + key + "&steamid="
+				+ steamID + "&format=json";
 		numbers = new HashMap<String, Integer>();
 		numbers.put("Action", 0);
 		numbers.put("Adventure", 1);
@@ -32,9 +32,8 @@ public class SteamPullRest {
 		numbers.put("Simulation", 7);
 		numbers.put("Sports", 8);
 		numbers.put("Strategy", 9);
-		
-		try {
 
+		try {
 			URL url = new URL(urlString);
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
@@ -43,11 +42,11 @@ public class SteamPullRest {
 			if (conn.getResponseCode() != 200) {
 				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
 			}
-			
+
 			BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
-
+			BufferedWriter writer = new BufferedWriter(new FileWriter("genre_rating.csv"));
+			
 			String output;
-
 			if ((output = br.readLine()) != null) {
 				JSONParser parser = new JSONParser();
 				JSONObject json = null;
@@ -64,6 +63,15 @@ public class SteamPullRest {
 					if (playTime > 0) {
 						System.out.print(appID + " ");
 						ArrayList<String> genreList = getGenres(appID);
+
+						String output_string = "";
+						int nums[] = convertGenreToInt(genreList);
+						for (int num : nums) {
+							output_string += num + ",";
+						}
+						output_string += playTime + "\n";
+						writer.write(output_string);
+						
 						for (String genre : genreList) {
 							System.out.print(genre + " ");
 						}
@@ -71,18 +79,13 @@ public class SteamPullRest {
 					}
 				}
 			}
+			writer.close();
 			conn.disconnect();
-
 		} catch (MalformedURLException e) {
-
 			e.printStackTrace();
-
 		} catch (IOException e) {
-
 			e.printStackTrace();
-
 		}
-
 	}
 
 	private static ArrayList<String> getGenres(long appID) {
@@ -137,7 +140,7 @@ public class SteamPullRest {
 	}
 
 	private static int[] convertGenreToInt(ArrayList<String> genreList) {
-		int[] genreLine = { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		int[] genreLine = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		for (String genre : genreList) {
 			if (numbers.containsKey(genre)) {
 				genreLine[numbers.get(genre)] = 1;
