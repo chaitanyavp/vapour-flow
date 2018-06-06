@@ -98,14 +98,14 @@ def main(argv):
 
     predict_x = {
         'Action':    [1, 1, 0],
-        'Adventure': [1, 0, 1],
+        'Adventure': [1, 1, 0],
         'Casual':    [1, 0, 0],
-        'Indie':     [1, 1, 0],
+        'Indie':     [1, 0, 0],
         'Massively_Multiplayer': [0, 0, 0],
-        'Racing':    [1, 1, 0],
-        'RPG':       [1, 0, 0],
+        'Racing':    [1, 0, 0],
+        'RPG':       [1, 1, 1],
         'Simulation':[1, 0, 0],
-        'Sports':    [1, 1, 0],
+        'Sports':    [1, 0, 0],
         'Strategy':  [1, 0, 0]
     }
 
@@ -126,7 +126,7 @@ def main(argv):
     #     print(template.format(str(class_id),
     #                           100 * probability, expec))
     for i, prediction in enumerate(predictions):
-        print(" ", prediction["predictions"][0]*1/6, "hours")
+        print(" ", prediction["predictions"][0]*1/20, "hours")
         # print(" ", prediction["predictions"][0], "mins")
     print()
 
