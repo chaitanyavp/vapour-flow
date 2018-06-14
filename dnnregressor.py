@@ -11,6 +11,8 @@ import imports_steam as imports85  # pylint: disable=g-bad-import-order
 STEPS = 5000
 PRICE_NORM_FACTOR = 1000
 
+CSV_COLUMN_NAMES = ['Action','Adventure','Casual','Indie', 'Massively_Multiplayer',
+                    'Racing', 'RPG', 'Simulation','Sports', 'Strategy', 'Time']
 
 def main(argv):
   """Builds, trains, and evaluates the model."""
@@ -38,6 +40,25 @@ def main(argv):
     return (test.shuffle(1000).batch(128)
             .make_one_shot_iterator().get_next())
 
+  def eval_input_fn(features, labels, batch_size):
+    """An input function for evaluation or prediction"""
+    features=dict(features)
+    if labels is None:
+        # No labels, use only features.
+        inputs = features
+    else:
+        inputs = (features, labels)
+
+    # Convert the inputs to a Dataset.
+    dataset = tf.data.Dataset.from_tensor_slices(inputs)
+
+    # Batch the examples
+    assert batch_size is not None, "batch_size must not be None"
+    dataset = dataset.batch(batch_size)
+
+    # Return the dataset.
+    return dataset
+
   # The first way assigns a unique weight to each category. To do this you must
   # specify the category's vocabulary (values outside this specification will
   # receive a weight of zero). Here we specify the vocabulary using a list of
@@ -45,28 +66,13 @@ def main(argv):
   # `categorical_column_with_vocabulary_file`). For features covering a
   # range of positive integers use `categorical_column_with_identity`.
   body_style_vocab = ["True", "False"]
-  body_style = tf.feature_column.categorical_column_with_vocabulary_list(
-      key="Action", vocabulary_list=body_style_vocab)
-  body_style = tf.feature_column.categorical_column_with_vocabulary_list(
-      key="Adventure", vocabulary_list=body_style_vocab)
-  body_style = tf.feature_column.categorical_column_with_vocabulary_list(
-      key="Action", vocabulary_list=body_style_vocab)
-  body_style = tf.feature_column.categorical_column_with_vocabulary_list(
-      key="Action", vocabulary_list=body_style_vocab)
-  body_style = tf.feature_column.categorical_column_with_vocabulary_list(
-      key="Action", vocabulary_list=body_style_vocab)
-  # make = tf.feature_column.categorical_column_with_hash_bucket(
-  #     key="make", hash_bucket_size=50)
+  feature_columns = []
+  for col_name in CSV_COLUMN_NAMES[:-1]:
+    feature_columns.append(tf.feature_column.indicator_column(
+      tf.feature_column.categorical_column_with_vocabulary_list(key=col_name, 
+        vocabulary_list=body_style_vocab))
+    )
 
-  feature_columns = [
-      tf.feature_column.numeric_column(key="curb-weight"),
-      tf.feature_column.numeric_column(key="highway-mpg"),
-      # Since this is a DNN model, convert categorical columns from sparse
-      # to dense.
-      # Wrap them in an `indicator_column` to create a
-      # one-hot vector from the input.
-      tf.feature_column.indicator_column(body_style),
-  ]
 
   # Build a DNNRegressor, with 2x20-unit hidden layers, with the feature columns
   # defined above as input.
@@ -85,11 +91,36 @@ def main(argv):
 
   # Convert MSE to Root Mean Square Error (RMSE).
   print("\n" + 80 * "*")
-  print("\nRMS error for the test set: ${:.0f}"
+  print("\nRMS error for the test set: {:.0f}"
         .format(PRICE_NORM_FACTOR * average_loss**0.5))
 
   print()
 
+  predict_x = {
+        'Action':    ["True", "False", "True"],
+        'Adventure': ["False", "False", "True"],
+        'Casual':    ["False", "False", "False"],
+        'Indie':     ["True", "False", "False"],
+        'Massively_Multiplayer': ["False", "False", "True"],
+        'Racing':    ["False", "False", "False"],
+        'RPG':       ["False", "False", "False"],
+        'Simulation':["False", "False", "False"],
+        'Sports':    ["False", "False", "False"],
+        'Strategy':  ["False", "True", "False"]
+    }
+
+    # predictions = classifier.predict(
+    #     input_fn=lambda:eval_input_fn(predict_x,expected,
+    #                                         batch_size=batch_size))
+
+  games = ["Cuphead", "Civ 6", "PUBG"]
+  predictions = model.predict(
+        input_fn=lambda: eval_input_fn(predict_x, None,
+                                       batch_size=128))
+  for i, prediction in enumerate(predictions):
+    print(" ", games[i] + ": ", prediction["predictions"][0]*PRICE_NORM_FACTOR/20, "hours")
+    # print(" ", prediction["predictions"][0], "mins")
+  print()
 
 if __name__ == "__main__":
   # The Estimator periodically generates "INFO" logs; make these logs visible.
