@@ -28,6 +28,7 @@ public class CommunicateWithFlask {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Accept", "application/json");
+            conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
     		conn.setRequestProperty("User-Agent", "baddiy");
     		conn.setRequestProperty("Accept-Language", "UTF-8");
