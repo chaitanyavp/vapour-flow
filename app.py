@@ -1,6 +1,7 @@
 from flask import Flask
 from flask import request
 import sys
+import dnnregressor
 
 app = Flask(__name__)
 
@@ -14,6 +15,7 @@ def json_example():
     if json_dict is not None:
         print(request.mimetype, json_dict['good'], file=sys.stderr)
         print(type(json_dict['list']), json_dict['list'], file=sys.stderr)
+        dnnregressor.from_list(json_dict['list'])
         return "good"
     else:
         return "bad"

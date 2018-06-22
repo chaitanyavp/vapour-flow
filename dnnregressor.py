@@ -14,6 +14,7 @@ SCALE = 1000
 train_fraction=0.7
 path = "genre_rating_categ.csv"
 y_name = "Time"
+data_from_path = None
 
 # Order is important for the csv-readers, so we use an OrderedDict here.
 defaults = collections.OrderedDict([
@@ -65,13 +66,19 @@ def in_training_set(line):
     return bucket_id < int(train_fraction * 1000000)
 
 
+def from_list(list_of_lines):
+    global data_from_path
+    data_from_path = list_of_lines
+    main([""])
+
+
 def main(argv):
     """Builds, trains, and evaluates the model."""
     assert len(argv) == 1
-    base_dataset = (
-      tf.data
-      # Get the lines from the file.
-      .TextLineDataset(path))
+    if data_from_path is None:
+        base_dataset = (tf.data.TextLineDataset(path))
+    else:
+        base_dataset = data_from_path
     train = (base_dataset
            # Take only the training-set lines.
            .filter(in_training_set)
@@ -98,6 +105,7 @@ def main(argv):
             train.shuffle(1000).batch(128)
             # Repeat forever
             .repeat().make_one_shot_iterator().get_next())
+
 
     # Build the validation input_fn.
     def input_test():
