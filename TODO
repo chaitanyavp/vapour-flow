@@ -1,3 +1,4 @@
 1. Add api key reader from file
 2. Create buffered reader so new steam api calls not necessary
 3. Save files based on userid
+4. explore deployment possibilities
