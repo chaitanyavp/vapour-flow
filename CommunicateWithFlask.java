@@ -44,6 +44,9 @@ public class CommunicateWithFlask {
             good.putAll(params);
           }
           good.put("list", arr);
+          if(good.get("good") == null){
+            good.put("good", "bad");
+          }
           
           conn.setDoOutput(true);
           OutputStreamWriter outputStreamWriter = new OutputStreamWriter(conn.getOutputStream());
