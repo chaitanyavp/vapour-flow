@@ -12,7 +12,8 @@ import tensorflow as tf
 STEPS = 5000
 SCALE = 1000
 train_fraction=0.7
-path = "genre_rating_categ.csv"
+# path = "genre_rating_categ.csv"
+path = "steam_data.csv"
 y_name = "Time"
 data_from_path = None
 
