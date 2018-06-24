@@ -1,4 +1,5 @@
-1. Add api key reader from file
-2. Create buffered reader so new steam api calls not necessary
+1. Add simple ui with java fx
+2. optimize model
 3. Save files based on userid
+4. train multiple models on one server with uid hashmap
 4. explore deployment possibilities
