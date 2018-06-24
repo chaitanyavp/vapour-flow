@@ -21,9 +21,12 @@ public class SteamPullRest {
 	private static HashMap<String, Integer> numbers;
 
 	public static void main(String[] args) throws IOException {
-		// CommunicateWithFlask c = new CommunicateWithFlask();
+//		CommunicateWithFlask c = new CommunicateWithFlask();
+		// c.sendCreateGet();
 		// c.sendPost(null, readFromFile("genre_rating_categ.csv"));
-		// System.exit(0);
+		// c.sendTrainGet();
+//		c.sendPredictPut("Civ 6", "False,False,False,False,False,False,False,False,False,True");
+//		System.exit(0);
 
 		String key = getApiKey(); // Enter api key
 		String steamID = "76561198069391194"; // beta
@@ -75,20 +78,10 @@ public class SteamPullRest {
 					long appID = (long) ((JSONObject) game).get("appid");
 					if (playTime > 0) {
 						System.out.print(appID + " ");
-						ArrayList<String> genreList = getGenres(appID);
-
-						String output_string = "";
-						String[] nums = convertGenreToBool(genreList);
-						for (String num : nums) {
-							output_string += num + ",";
-						}
+						String output_string = getGameString(appID);
 						output_string += playTime + "\n";
 
 						writer.write(output_string);
-
-						for (String genre : genreList) {
-							System.out.print(genre + " ");
-						}
 						System.out.println(playTime);
 					}
 				}
@@ -162,6 +155,25 @@ public class SteamPullRest {
 		return genreList;
 	}
 
+	private static String getGameString(long appID) {
+		ArrayList<String> genreList = getGenres(appID);
+
+		String outputString = "";
+		String[] nums = convertGenreToBool(genreList);
+		for (String num : nums) {
+			if (outputString.length() != 0) {
+				outputString += ",";
+			}
+			outputString += num;
+		}
+
+		for (String genre : genreList) {
+			System.out.print(genre + " ");
+		}
+
+		return outputString;
+	}
+
 	private static String[] convertGenreToBool(ArrayList<String> genreList) {
 		String[] genreLine = { "False", "False", "False", "False", "False", "False", "False", "False", "False",
 				"False" };
@@ -186,7 +198,6 @@ public class SteamPullRest {
 		ArrayList<String> lines = new ArrayList<String>();
 		try {
 			while ((line = reader.readLine()) != null) {
-				System.out.println(line);
 				lines.add(line);
 			}
 		} catch (IOException e) {

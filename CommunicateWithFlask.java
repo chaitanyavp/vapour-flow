@@ -64,6 +64,23 @@ public class CommunicateWithFlask {
 			e.printStackTrace();
 		}
 	}
+	
+	public void sendCreateGet() {
+		try {
+			URL url = new URL("http://127.0.0.1:5000/create");
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("GET");
+			conn.setRequestProperty("Accept", "application/json");
+			if (conn.getResponseCode() != 200) {
+				throw new RuntimeException("Failed : HTTP error code : " + conn.getResponseCode());
+			}
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
 
 	public void sendTrainGet() {
 		try {
@@ -82,7 +99,7 @@ public class CommunicateWithFlask {
 
 	}
 
-	public int sendPredictPut(String gameLine) {
+	public int sendPredictPut(String gameName, String gameGenres) {
 		try {
 			URL url = new URL("http://127.0.0.1:5000/predict");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -91,7 +108,8 @@ public class CommunicateWithFlask {
 			conn.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 			
 			JSONObject good = new JSONObject();
-			good.put("gameline", "yeeeeehaww");
+			good.put("gameName", gameName);
+			good.put("gameGenres", gameGenres);
 
 			conn.setDoOutput(true);
 			OutputStreamWriter outputStreamWriter = new OutputStreamWriter(conn.getOutputStream());
