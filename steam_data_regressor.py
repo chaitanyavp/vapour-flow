@@ -1,5 +1,3 @@
-"""Regression using the DNNRegressor Estimator."""
-
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -11,6 +9,7 @@ import tensorflow as tf
 
 
 class SteamDataRegressor:
+    """Regression on Steam Player Data using the DNNRegressor Estimator."""
 
     def __init__(self):
         self._steps = 5000
@@ -39,7 +38,7 @@ class SteamDataRegressor:
                                   'Simulation', 'Sports', 'Strategy', 'Time']
         self._model = None
 
-    def decode_line(self, line):
+    def _decode_line(self, line):
         """Convert a csv line into a (features_dict,label) pair."""
         # Decode the line to a tuple of items based on the types of
         # csv_header.values().
@@ -53,13 +52,13 @@ class SteamDataRegressor:
         label = features_dict.pop(self._y_name)
         return features_dict, label
 
-    def in_training_set(self, line):
+    def _in_training_set(self, line):
         """Returns a boolean tensor, true if the line is in the training set."""
         bucket_id = tf.string_to_hash_bucket_fast(line, 1000000)
         # Use the hash bucket id as a random number that's deterministic per example
         return bucket_id < int(self._train_fraction * 1000000)
 
-    def scale_down(self, features, labels):
+    def _scale_down(self, features, labels):
         return features, labels / self._scale
 
     def create_model(self):
@@ -75,9 +74,9 @@ class SteamDataRegressor:
           hidden_units=[20, 20], feature_columns=feature_columns)
 
     def train_model(self, base_dataset):
-        train = (base_dataset.filter(self.in_training_set).map(self.decode_line)
+        train = (base_dataset.filter(self._in_training_set).map(self._decode_line)
                  .cache())
-        train = train.map(self.scale_down)
+        train = train.map(self._scale_down)
 
         def _train_helper():
             return (train.shuffle(1000).batch(128)
@@ -86,9 +85,9 @@ class SteamDataRegressor:
         self._model.train(input_fn=_train_helper, steps=self._steps)
 
     def test_model(self, base_dataset):
-        test = (base_dataset.filter(lambda line: ~self.in_training_set(line))
-                .cache().map(self.decode_line))
-        test = test.map(self.scale_down)
+        test = (base_dataset.filter(lambda line: ~self._in_training_set(line))
+                .cache().map(self._decode_line))
+        test = test.map(self._scale_down)
 
         def _test_helper():
             return (test.shuffle(1000).batch(128)
@@ -107,22 +106,7 @@ class SteamDataRegressor:
 
         print()
 
-    def make_prediction(self):
-        predict_x = {
-            'Action': ["False", "False", "True"],
-            'Adventure': ["False", "False", "True"],
-            'Casual': ["False", "False", "False"],
-            'Indie': ["False", "False", "False"],
-            'Massively_Multiplayer': ["False", "False", "True"],
-            'Racing': ["False", "False", "False"],
-            'RPG': ["True", "False", "False"],
-            'Simulation': ["False", "False", "False"],
-            'Sports': ["False", "False", "False"],
-            'Strategy': ["False", "True", "False"]
-        }
-
-        games = ["Skyrim", "Civ 6", "PUBG"]
-
+    def make_prediction(self, predict_x, games):
         def _eval_helper(features, labels, batch_size):
             """An input function for evaluation or prediction"""
             features = dict(features)
@@ -145,14 +129,14 @@ class SteamDataRegressor:
         predictions = self._model.predict(
             input_fn=lambda: _eval_helper(predict_x, None,
                                           batch_size=128))
+        output_string = ""
         for i, prediction in enumerate(predictions):
-            print(" ", games[i] + ": ",
-                  prediction["predictions"][0] * self._scale / 30, "hours")
-            # print(" ", prediction["predictions"][0], "mins")
-        print()
+            output_string += games[i] + ": " + str(prediction["predictions"][0]
+                                                   * self._scale / 30) + " hours\n"
+        return output_string
 
-    def prepare_entire_model(self):
-        self.create_model()
+    def prepare_existing_model(self):
+        # self.create_model()
         base_dataset = (tf.data.TextLineDataset(self._path))
         self.train_model(base_dataset)
         self.test_model(base_dataset)
@@ -171,7 +155,22 @@ class SteamDataRegressor:
         # Test the model
         self.test_model(base_dataset)
 
-        self.make_prediction()
+        predict_x = {
+            'Action': ["False", "False", "True"],
+            'Adventure': ["False", "False", "True"],
+            'Casual': ["False", "False", "False"],
+            'Indie': ["False", "False", "False"],
+            'Massively_Multiplayer': ["False", "False", "True"],
+            'Racing': ["False", "False", "False"],
+            'RPG': ["True", "False", "False"],
+            'Simulation': ["False", "False", "False"],
+            'Sports': ["False", "False", "False"],
+            'Strategy': ["False", "True", "False"]
+        }
+
+        games = ["Skyrim", "Civ 6", "PUBG"]
+
+        self.make_prediction(predict_x, games)
 
 if __name__ == "__main__":
     # The Estimator periodically generates "INFO" logs; make these logs visible.
