@@ -107,12 +107,21 @@ class SteamDataRegressor:
 
         print()
 
-    def main(self, argv):
-        """Builds, trains, and evaluates the model."""
-        assert len(argv) == 1
-        base_dataset = (tf.data.TextLineDataset(self._path))
+    def make_prediction(self):
+        predict_x = {
+            'Action': ["False", "False", "True"],
+            'Adventure': ["False", "False", "True"],
+            'Casual': ["False", "False", "False"],
+            'Indie': ["False", "False", "False"],
+            'Massively_Multiplayer': ["False", "False", "True"],
+            'Racing': ["False", "False", "False"],
+            'RPG': ["True", "False", "False"],
+            'Simulation': ["False", "False", "False"],
+            'Sports': ["False", "False", "False"],
+            'Strategy': ["False", "True", "False"]
+        }
 
-        # Build the validation input_fn.
+        games = ["Skyrim", "Civ 6", "PUBG"]
 
         def _eval_helper(features, labels, batch_size):
             """An input function for evaluation or prediction"""
@@ -133,6 +142,26 @@ class SteamDataRegressor:
             # Return the dataset.
             return dataset
 
+        predictions = self._model.predict(
+            input_fn=lambda: _eval_helper(predict_x, None,
+                                          batch_size=128))
+        for i, prediction in enumerate(predictions):
+            print(" ", games[i] + ": ",
+                  prediction["predictions"][0] * self._scale / 30, "hours")
+            # print(" ", prediction["predictions"][0], "mins")
+        print()
+
+    def prepare_entire_model(self):
+        self.create_model()
+        base_dataset = (tf.data.TextLineDataset(self._path))
+        self.train_model(base_dataset)
+        self.test_model(base_dataset)
+
+    def main(self, argv):
+        """Builds, trains, and evaluates the model."""
+        assert len(argv) == 1
+        base_dataset = (tf.data.TextLineDataset(self._path))
+
         self.create_model()
         assert self._model is not None
 
@@ -142,27 +171,7 @@ class SteamDataRegressor:
         # Test the model
         self.test_model(base_dataset)
 
-        predict_x = {
-            'Action':    ["False", "False", "True"],
-            'Adventure': ["False", "False", "True"],
-            'Casual':    ["False", "False", "False"],
-            'Indie':     ["False", "False", "False"],
-            'Massively_Multiplayer': ["False", "False", "True"],
-            'Racing':    ["False", "False", "False"],
-            'RPG':       ["True", "False", "False"],
-            'Simulation':["False", "False", "False"],
-            'Sports':    ["False", "False", "False"],
-            'Strategy':  ["False", "True", "False"]
-        }
-
-        games = ["Skyrim", "Civ 6", "PUBG"]
-        predictions = self._model.predict(
-            input_fn=lambda: _eval_helper(predict_x, None,
-                                          batch_size=128))
-        for i, prediction in enumerate(predictions):
-            print(" ", games[i] + ": ", prediction["predictions"][0] * self._scale / 30, "hours")
-            # print(" ", prediction["predictions"][0], "mins")
-        print()
+        self.make_prediction()
 
 if __name__ == "__main__":
     # The Estimator periodically generates "INFO" logs; make these logs visible.
