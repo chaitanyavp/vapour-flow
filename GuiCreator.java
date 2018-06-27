@@ -20,7 +20,8 @@ public class GuiCreator extends Application {
   
   @Override
   public void start(Stage mainPage) {
-    stats = new String[3];
+    
+    stats = new String[]{"No", "No", ""};
     
     Button grabUserData = new Button();
     grabUserData.setText("Grab User data");
@@ -39,10 +40,13 @@ public class GuiCreator extends Application {
 
     Text scenetitle = new Text("Welcome");
     scenetitle.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
+    Text resultText = new Text("");
+    resultText.setFont(Font.font("Tahoma", FontWeight.NORMAL, 20));
     grid.add(scenetitle, 0, 0, 2, 1);
     grid.add(grabUserData, 2, 1, 2, 1);
     grid.add(trainModel, 0, 2, 2, 1);
     grid.add(makePredict, 2, 3, 2, 1);
+    grid.add(resultText, 0, 4, 2, 1);
 
     Label userIDLabel = new Label("Steam User ID:");
     grid.add(userIDLabel, 0, 1);
@@ -60,6 +64,8 @@ public class GuiCreator extends Application {
       @Override
       public void handle(ActionEvent event) {   
         System.out.println("Hello World!");
+        stats[0] = "User Data Downloaded, " + userIDField.getText();
+        setTitle(scenetitle);
         trainModel.setDisable(false);
       }
     });
@@ -67,8 +73,8 @@ public class GuiCreator extends Application {
     trainModel.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {   
-        System.out.println("Hello World!");
-        scenetitle.setText("Model Trained");
+        stats[1] = userIDField.getText();
+        setTitle(scenetitle);
         makePredict.setDisable(false);
       }
     });
@@ -76,23 +82,26 @@ public class GuiCreator extends Application {
     makePredict.setOnAction(new EventHandler<ActionEvent>() {
       @Override
       public void handle(ActionEvent event) {   
-        System.out.println("Hello World!");
-        scenetitle.setText(" is predicted to spend hours on .");
+        stats[2] = "? hours on "+appIDField.getText();
+        setResult(resultText);
       }
     });
     
     mainPage.setTitle("VapourFlow Steam Tool");
-    mainPage.setScene(new Scene(grid, 500, 350));
+    mainPage.setScene(new Scene(grid, 650, 350));
     mainPage.show();
   }
   
-  private void setTitle(Text title, Text result){
-    title.setText(stats[0]+" data on file. " + stats[1] + " model trained and active.");
-    if(!stats[0].equals("No")){
+  private void setTitle(Text title){
+    title.setText(stats[0]+" data on file.\n" + stats[1] + " model trained and active.");
+  }
+  
+  private void setResult(Text result){
+    if(!stats[2].equals("")){
       result.setText(stats[1] + " is predicted to spend hours on .");
     }
     else{
-      result.setText(" is predicted to spend hours on .");
+      result.setText("");
     }
   }
   
