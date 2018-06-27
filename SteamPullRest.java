@@ -22,14 +22,42 @@ import org.json.simple.parser.ParseException;
 
 public class SteamPullRest {
 
-  private static HashMap<String, Integer> numbers;
-
+  private HashMap<String, Integer> numbers;
+  private ArrayList<String> lines;
+  private CommunicateWithFlask comm;
+  
   public static void main(String[] args) throws IOException {
     String steamID = "76561198069391194"; // beta
     // String steamID = "76561198170201429"; //Pran
     // String steamID = "76561198094806813"; //quick
-
-    ArrayList<String> lines = null;
+    SteamPullRest stp = new SteamPullRest();
+    
+    stp.handleUserIDInput(steamID);
+    
+//    comm.sendCreateGet();
+//    comm.sendPost(null, lines);
+//    comm.sendTrainGet();
+//    comm.sendPredictPut("Civ 6", "False,False,False,False,False,False,False,False,False,True");
+  }
+  
+  public SteamPullRest(){
+    numbers = new HashMap<String, Integer>();
+    numbers.put("Action", 0);
+    numbers.put("Adventure", 1);
+    numbers.put("Casual", 2);
+    numbers.put("Indie", 3);
+    numbers.put("Massively Multiplayer", 4);
+    numbers.put("Racing", 5);
+    numbers.put("RPG", 6);
+    numbers.put("Simulation", 7);
+    numbers.put("Sports", 8);
+    numbers.put("Strategy", 9);
+    
+    comm = new CommunicateWithFlask();
+  }
+  
+  public void handleUserIDInput(String steamID){
+    lines = null;
     File f = new File("userfiles/userdata_" + steamID + ".csv");
     if (f.exists() && !f.isDirectory()) {
       int useData = JOptionPane.showConfirmDialog(null, "Player data already on file. Use this?",
@@ -42,29 +70,12 @@ public class SteamPullRest {
     if (lines == null) {
       lines = downloadSteamData(steamID);
     }
-
-    CommunicateWithFlask comm = new CommunicateWithFlask();
-    comm.sendCreateGet();
-    comm.sendPost(null, lines);
-    comm.sendTrainGet();
-    comm.sendPredictPut("Civ 6", "False,False,False,False,False,False,False,False,False,True");
   }
-
-  private static ArrayList<String> downloadSteamData(String steamID) {
+  
+  private ArrayList<String> downloadSteamData(String steamID) {
     String key = getApiKey(); // Enter api key
     String urlString = "http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=" + key
         + "&steamid=" + steamID + "&format=json";
-    numbers = new HashMap<String, Integer>();
-    numbers.put("Action", 0);
-    numbers.put("Adventure", 1);
-    numbers.put("Casual", 2);
-    numbers.put("Indie", 3);
-    numbers.put("Massively Multiplayer", 4);
-    numbers.put("Racing", 5);
-    numbers.put("RPG", 6);
-    numbers.put("Simulation", 7);
-    numbers.put("Sports", 8);
-    numbers.put("Strategy", 9);
 
     ArrayList<String> lines = new ArrayList<String>();
 
@@ -124,7 +135,7 @@ public class SteamPullRest {
     return lines;
   }
 
-  private static ArrayList<String> getGenres(long appID) {
+  private ArrayList<String> getGenres(long appID) {
     String genreUrl =
         "https://store.steampowered.com/api/appdetails/?appids=" + appID + "&filters=genres";
     ArrayList<String> genreList = new ArrayList<String>();
@@ -178,7 +189,7 @@ public class SteamPullRest {
     return genreList;
   }
 
-  private static String getGameString(long appID) {
+  private String getGameString(long appID) {
     ArrayList<String> genreList = getGenres(appID);
 
     String outputString = "";
@@ -197,7 +208,7 @@ public class SteamPullRest {
     return outputString;
   }
 
-  private static String[] convertGenreToBool(ArrayList<String> genreList) {
+  private String[] convertGenreToBool(ArrayList<String> genreList) {
     String[] genreLine =
         {"False", "False", "False", "False", "False", "False", "False", "False", "False", "False"};
     for (String genre : genreList) {
@@ -208,7 +219,7 @@ public class SteamPullRest {
     return genreLine;
   }
 
-  private static ArrayList<String> readFromFile(String path) {
+  private ArrayList<String> readFromFile(String path) {
     BufferedReader reader;
     try {
       reader = new BufferedReader(new FileReader(path));
@@ -230,7 +241,7 @@ public class SteamPullRest {
     return lines;
   }
 
-  private static String getApiKey() {
+  private String getApiKey() {
     BufferedReader reader;
     try {
       reader = new BufferedReader(new FileReader("api.key"));
