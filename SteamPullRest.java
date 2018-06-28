@@ -77,8 +77,8 @@ public class SteamPullRest {
     comm.sendTrainGet();
   }
   
-  public void handlePredict(long appID){
-    comm.sendPredictPut("Game", getGameString(appID));
+  public String handlePredict(long appID){
+    return comm.sendPredictPut("Game", getGameString(appID));
   }
   
   private ArrayList<String> downloadSteamData(String steamID) {
