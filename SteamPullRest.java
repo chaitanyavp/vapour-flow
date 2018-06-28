@@ -33,10 +33,8 @@ public class SteamPullRest {
     SteamPullRest stp = new SteamPullRest();
     
     stp.handleUserIDInput(steamID);
+    stp.handleTrainModel();
 //    System.out.println(stp.lines);
-//    stp.comm.sendCreateGet();
-//    stp.comm.sendPost(null, stp.lines);
-//    stp.comm.sendTrainGet();
 //    stp.comm.sendPredictPut("Civ 6", "False,False,False,False,False,False,False,False,False,True");
   }
   
@@ -70,6 +68,12 @@ public class SteamPullRest {
     if (lines == null) {
       lines = downloadSteamData(steamID);
     }
+  }
+  
+  public void handleTrainModel(){
+    comm.sendCreateGet();
+    comm.sendPost(null, lines);
+    comm.sendTrainGet();
   }
   
   private ArrayList<String> downloadSteamData(String steamID) {
