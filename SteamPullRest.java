@@ -33,11 +33,11 @@ public class SteamPullRest {
     SteamPullRest stp = new SteamPullRest();
     
     stp.handleUserIDInput(steamID);
-    
-//    comm.sendCreateGet();
-//    comm.sendPost(null, lines);
-//    comm.sendTrainGet();
-//    comm.sendPredictPut("Civ 6", "False,False,False,False,False,False,False,False,False,True");
+//    System.out.println(stp.lines);
+//    stp.comm.sendCreateGet();
+//    stp.comm.sendPost(null, stp.lines);
+//    stp.comm.sendTrainGet();
+//    stp.comm.sendPredictPut("Civ 6", "False,False,False,False,False,False,False,False,False,True");
   }
   
   public SteamPullRest(){
@@ -112,9 +112,9 @@ public class SteamPullRest {
           if (playTime > 0) {
             System.out.print(appID + " ");
             String output_string = getGameString(appID);
-            output_string += playTime + "\n";
-
-            writer.write(output_string);
+            output_string += "," + playTime;
+            lines.add(output_string);
+            writer.write(output_string + "\n");
             System.out.println(playTime);
           }
         }
