@@ -131,8 +131,10 @@ class SteamDataRegressor:
                                           batch_size=128))
         output_string = ""
         for i, prediction in enumerate(predictions):
-            output_string += games[i] + ": " + str(prediction["predictions"][0]
-                                                   * self._scale / 30) + " hours\n"
+            # output_string += games[i] + ": " + str(prediction["predictions"][0]
+            #                                        * self._scale / 30) + " hours\n"
+            output_string += str(round(prediction["predictions"][0]
+                                                   * self._scale / 30, 1)) + " hours\n"
         return output_string
 
     def prepare_existing_model(self):

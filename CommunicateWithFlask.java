@@ -99,7 +99,7 @@ public class CommunicateWithFlask {
 
 	}
 
-	public int sendPredictPut(String gameName, String gameGenres) {
+	public String sendPredictPut(String gameName, String gameGenres) {
 		try {
 			URL url = new URL("http://127.0.0.1:5000/predict");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -124,6 +124,7 @@ public class CommunicateWithFlask {
 			String output;
 			if ((output = br.readLine()) != null) {
 				System.out.println("VERY GOOD RESPONSE: " + output);
+				return output;
 			}
 			conn.disconnect();
 		} catch (MalformedURLException e) {
@@ -131,7 +132,7 @@ public class CommunicateWithFlask {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return 0;
+		return "0";
 	}
 
 	public void main(String[] args) throws IOException {

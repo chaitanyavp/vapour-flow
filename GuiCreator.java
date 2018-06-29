@@ -1,3 +1,5 @@
+import java.net.ConnectException;
+
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -15,14 +17,14 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public class GuiCreator extends Application {
-  
+
   private String stats[];
-  
+
   @Override
   public void start(Stage mainPage) {
-    
-    stats = new String[]{"No", "No", ""};
-    
+    stats = new String[] {"No", "No", ""};
+    SteamPullRest steamCom = new SteamPullRest();
+
     Button grabUserData = new Button();
     grabUserData.setText("Grab User data");
     Button trainModel = new Button();
@@ -53,26 +55,32 @@ public class GuiCreator extends Application {
 
     TextField userIDField = new TextField();
     grid.add(userIDField, 1, 1);
-    
+
     Label appIDLabel = new Label("Steam AppID:");
     grid.add(appIDLabel, 0, 3);
 
     TextField appIDField = new TextField();
     grid.add(appIDField, 1, 3);
-    
+
     grabUserData.setOnAction(new EventHandler<ActionEvent>() {
       @Override
-      public void handle(ActionEvent event) {   
-        System.out.println("Hello World!");
+      public void handle(ActionEvent event) {
+        // try {
+        steamCom.handleUserIDInput(userIDField.getText());
+        // }
+        // catch(ConnectException c){
+        //
+        // }
         stats[0] = "User Data Downloaded, " + userIDField.getText();
         setTitle(scenetitle);
         trainModel.setDisable(false);
       }
     });
-    
+
     trainModel.setOnAction(new EventHandler<ActionEvent>() {
       @Override
-      public void handle(ActionEvent event) {   
+      public void handle(ActionEvent event) {
+        steamCom.handleTrainModel();
         stats[1] = userIDField.getText();
         setTitle(scenetitle);
         makePredict.setDisable(false);
@@ -81,30 +89,30 @@ public class GuiCreator extends Application {
 
     makePredict.setOnAction(new EventHandler<ActionEvent>() {
       @Override
-      public void handle(ActionEvent event) {   
-        stats[2] = "? hours on "+appIDField.getText();
+      public void handle(ActionEvent event) {
+        String hours = steamCom.handlePredict(Long.parseLong(appIDField.getText()));
+        stats[2] = hours += " hours on " + appIDField.getText();
         setResult(resultText);
       }
     });
-    
+
     mainPage.setTitle("VapourFlow Steam Tool");
     mainPage.setScene(new Scene(grid, 650, 350));
     mainPage.show();
   }
-  
-  private void setTitle(Text title){
-    title.setText(stats[0]+" data on file.\n" + stats[1] + " model trained and active.");
+
+  private void setTitle(Text title) {
+    title.setText(stats[0] + " data on file.\n" + stats[1] + " model trained and active.");
   }
-  
-  private void setResult(Text result){
-    if(!stats[2].equals("")){
-      result.setText(stats[1] + " is predicted to spend hours on .");
-    }
-    else{
+
+  private void setResult(Text result) {
+    if (!stats[2].equals("")) {
+      result.setText(stats[1] + " is predicted to spend "+stats[2]+".");
+    } else {
       result.setText("");
     }
   }
-  
+
   public static void main(String[] args) {
     launch(args);
   }
