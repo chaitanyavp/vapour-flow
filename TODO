@@ -1,5 +1,4 @@
-1. Add simple ui with java fx
-2. optimize model
-3. Save files based on userid
-4. train multiple models on one server with uid hashmap
-4. explore deployment possibilities
+Connect and test UI
+optimize model's loss functions, width and depth
+train multiple models on one server with uid hashmap
+explore deployment possibilities
