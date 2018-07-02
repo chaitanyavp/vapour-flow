@@ -11,4 +11,6 @@ To compile and use:
 5. Run app.py
 6. Compile and run GuiCreator.java
 
-Disclaimer: If you decide to fork and use this program, you will be using your own Steam API key and I am not responsible for any breaches of Valve's terms and conditions you may do. Please read their API terms before using.
+The Steam User ID that the program asks for is the 64-bit number associated with your Steam profile, and the AppID can be found in the url of any game's store page. 
+
+Disclaimer: If you decide to fork and use this program, you will be using your own Steam API key and I am not responsible for any breaches of Valve's terms and conditions you may decide to do. Please read their API terms before proceeding.
